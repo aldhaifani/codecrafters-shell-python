@@ -10,7 +10,8 @@ class CommandsHandler:
             "exit": self.exit_cmd,
             "echo": self.echo_cmd,
             "type": self.type_cmd,
-            "pwd": self.pwd_cmd
+            "pwd": self.pwd_cmd,
+            "cd": self.cd_cmd
         }
 
     def exit_cmd(self, arg: str):
@@ -35,6 +36,15 @@ class CommandsHandler:
             sys.stdout.write(f"pwd: too many arguments\n")
         else:
             sys.stdout.write(f"{os.getcwd()}\n")
+
+    def cd_cmd(self, arg: str):
+        if arg:
+            try:
+                os.chdir(arg)
+            except FileNotFoundError:
+                sys.stdout.write(f"cd: {arg}: No such file or directory\n")
+        else:
+            sys.stdout.write(f"cd: too few arguments\n")
 
     def run(self, full_command: list):
         if full_command[0] in self.commands_map:
