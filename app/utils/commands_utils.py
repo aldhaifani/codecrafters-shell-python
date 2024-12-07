@@ -9,7 +9,8 @@ class CommandsHandler:
         self.commands_map = {
             "exit": self.exit_cmd,
             "echo": self.echo_cmd,
-            "type": self.type_cmd
+            "type": self.type_cmd,
+            "pwd": self.pwd_cmd
         }
 
     def exit_cmd(self, arg: str):
@@ -28,6 +29,12 @@ class CommandsHandler:
             sys.stdout.write(f"{arg} is {found_file}\n")
         else:
             sys.stdout.write(f"{arg}: not found\n")
+
+    def pwd_cmd(self, arg: str):
+        if arg:
+            sys.stdout.write(f"pwd: too many arguments\n")
+        else:
+            sys.stdout.write(f"{os.getcwd()}\n")
 
     def run(self, full_command: list):
         if full_command[0] in self.commands_map:
