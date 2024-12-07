@@ -13,6 +13,7 @@ class CommandsHandler:
             "pwd": self.pwd_cmd,
             "cd": self.cd_cmd
         }
+        self.prev_dir = None
 
     def exit_cmd(self, arg: str):
         if arg.isdigit():
@@ -39,7 +40,15 @@ class CommandsHandler:
 
     def cd_cmd(self, arg: str):
         if arg:
+            if arg == "~":
+                arg = os.path.expanduser("~")
+            if arg == "-":
+                if self.prev_dir:
+                    arg = self.prev_dir
+                else:
+                    return
             try:
+                self.prev_dir = os.getcwd()
                 os.chdir(arg)
             except FileNotFoundError:
                 sys.stdout.write(f"cd: {arg}: No such file or directory\n")
