@@ -1,5 +1,6 @@
 import sys
 import os
+import subprocess
 
 
 class CommandsHandler:
@@ -10,9 +11,6 @@ class CommandsHandler:
             "echo": self.echo_cmd,
             "type": self.type_cmd
         }
-
-    def get_commands_map(self):
-        return self.commands_map
 
     def exit_cmd(self, arg: str):
         if arg.isdigit():
@@ -30,6 +28,18 @@ class CommandsHandler:
             sys.stdout.write(f"{arg} is {found_file}\n")
         else:
             sys.stdout.write(f"{arg}: not found\n")
+
+    def run(self, full_command: list):
+        if full_command[0] in self.commands_map:
+            self.commands_map[full_command[0]](" ".join(full_command[1:]))
+        else:
+            if executable_file := find_file(full_command[0], self.path):
+                self.run_external([executable_file] + full_command[1:])
+            else:
+                sys.stdout.write(f"{full_command[0]}: not found\n")
+
+    def run_external(self, full_command: list):
+        subprocess.run(full_command, stdout=sys.stdout, stderr=sys.stderr)
 
 
 def find_file(file_name: str, path: str) -> str:
