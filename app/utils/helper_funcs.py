@@ -37,15 +37,21 @@ def split_command(input_string: str) -> list:
     buffer = []
     in_quotes = False
     quote_char = None
-    escape = False  # To track if the previous character was a backslash
+    escape = False  # Tracks if the previous character was a backslash
 
     for char in input_string:
         if escape:
-            buffer.append(char)
+            if char == " ":
+                buffer.append(" ")  # Escaped spaces are treated as literal spaces
+            else:
+                buffer.append(char)  # Preserve literal value of the next character
             escape = False
         elif char == "\\":
-            escape = True
-        elif char in ("'", '"'):  # Handle both single and double quotes
+            if not in_quotes:
+                escape = True  # Set escape flag for the next character
+            else:
+                buffer.append("\\")  # In quotes, backslash is treated literally
+        elif char in ("'", '"'):  # Handle quotes
             if in_quotes:
                 if char == quote_char:
                     in_quotes = False
