@@ -16,14 +16,15 @@ def main(env_path=None):
         sys.stdout.write("$ ")
 
         command = input()
-        # Split the command into a list of command and arguments
-        # using the helper function
-        full_command = split_command(command)
+        if command:
+            # Split the command into a list of command and arguments
+            # using the helper function
+            full_command = split_command(command)
 
-        if len(full_command) == 1:
-            full_command.append("")
+            if len(full_command) == 1:
+                full_command.append("")
 
-        commands_handler.run(full_command)
+            commands_handler.run(full_command)
 
 
 if __name__ == "__main__":

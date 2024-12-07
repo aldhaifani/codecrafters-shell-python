@@ -35,41 +35,64 @@ def split_command(input_string: str) -> list:
     """
     result = []
     buffer = []
-    in_quotes = False
-    quote_char = None
-    escape = False  # Tracks if the previous character was a backslash
+    in_single_quotes = False  # Flag to track if we are inside single quotes
+    in_double_quotes = False  # Flag to track if we are inside double quotes
+    escape = False  # Flag to track if we're processing an escape sequence
 
-    for char in input_string:
+    i = 0
+    while i < len(input_string):
+        char = input_string[i]
+
         if escape:
-            if char == " ":
-                buffer.append(" ")  # Escaped spaces are treated as literal spaces
+            # If escape is active, handle the escape sequence
+            if in_double_quotes:
+                if char in ['\\', '$', '"']:
+                    buffer.append(char)
+                else:
+                    buffer.append('\\')
+                    buffer.append(char)  # Treat backslash as normal
+            elif in_single_quotes: # If in single quotes, treat backslash as normal
+                buffer.append("\\")
+                buffer.append(char)
             else:
-                buffer.append(char)  # Preserve literal value of the next character
-            escape = False
+                buffer.append(char)
+            escape = False  # Reset escape flag
         elif char == "\\":
-            if not in_quotes:
-                escape = True  # Set escape flag for the next character
+            escape = True  # Set escape flag when encountering a backslash
+        elif char == "'" and not in_double_quotes:
+            # Handle single quotes
+            if in_single_quotes:
+                in_single_quotes = False
+                result.append("".join(buffer))  # End of single-quoted section
+                buffer = []
             else:
-                buffer.append("\\")  # In quotes, backslash is treated literally
-        elif char in ("'", '"'):  # Handle quotes
-            if in_quotes:
-                if char == quote_char:
-                    in_quotes = False
+                in_single_quotes = True
+        elif char == "\"" and not in_single_quotes:
+            # Handle double quotes
+            if in_double_quotes:
+                in_double_quotes = False
+                if (i + 1 < len(input_string) and input_string[i + 1] == " ") or i + 1 == len(input_string):
+                    # If a space follows a closing quote, split the string
                     result.append("".join(buffer))
                     buffer = []
                 else:
-                    buffer.append(char)
+                    # If no space follows a closing quote, continue appending to buffer
+                    continue
             else:
-                in_quotes = True
-                quote_char = char
-        elif char == " " and not in_quotes:
+                in_double_quotes = True
+        elif char == " " and not in_single_quotes and not in_double_quotes:
+            # If space outside quotes, split the string
             if buffer:
                 result.append("".join(buffer))
                 buffer = []
         else:
+            # Normal characters or characters inside quotes, continue appending
             buffer.append(char)
 
-    if buffer:  # Append any remaining text
+        i += 1
+
+    # Append any remaining content in buffer
+    if buffer:
         result.append("".join(buffer))
 
     return result
